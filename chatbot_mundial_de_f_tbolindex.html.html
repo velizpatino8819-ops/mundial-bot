@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MundialBot - El Historiador Supremo de las Copas del Mundo</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & Cinzel for Luxury Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Marked.js for parsing markdown in chat responses -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#FAF8ED',
+                            100: '#F3EFCF',
+                            200: '#E7DC9B',
+                            300: '#DBC565',
+                            400: '#D1AF3B',
+                            500: '#C5A028', /* Pure Gold */
+                            600: '#A3811E',
+                            700: '#7E6017',
+                            800: '#5F4613',
+                            900: '#433010',
+                        },
+                        amberGold: '#E6C200',
+                        lightBg: '#FBFBF9',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cinzel', 'serif'],
+                    },
+                    boxShadow: {
+                        'gold-sm': '0 2px 8px -1px rgba(197, 160, 40, 0.15)',
+                        'gold-md': '0 4px 20px -2px rgba(197, 160, 40, 0.20)',
+                        'gold-glow': '0 0 25px rgba(212, 175, 55, 0.35)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Customizations and Gold Gradients */
+        body {
+            background-color: #FBFBF9;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+            color: #1A1A1A;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #B8860B 0%, #FFD700 45%, #D4AF37 70%, #996515 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-gradient-bg {
+            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #C5A028 100%);
+        }
+
+        .gold-border-gradient {
+            border-image: linear-gradient(to right, #D4AF37, #FFF2A1, #C5A028) 1;
+        }
+
+        .gold-card-shadow {
+            box-shadow: 0 10px 30px -5px rgba(197, 160, 40, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3EFCF/30;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1AF3B;
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A3811E;
+        }
+
+        /* Trophy Floating Animation */
+        @keyframes floatTrophy {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+
+        .animate-float {
+            animation: floatTrophy 5s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.4)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.75)); }
+        }
+
+        .trophy-glow {
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        /* Markdown formatting inside chat */
+        .markdown-body p { margin-bottom: 0.65rem; line-height: 1.6; }
+        .markdown-body ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.65rem; }
+        .markdown-body ol { list-style-type: decimal; padding-left: 1.2rem; margin-bottom: 0.65rem; }
+        .markdown-body strong { color: #8A6D0B; font-weight: 700; }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.875rem; }
+        .markdown-body th { background-color: #FAF8ED; border: 1px solid #E7DC9B; padding: 6px 10px; text-align: left; }
+        .markdown-body td { border: 1px solid #E7DC9B; padding: 6px 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- TOP BAR / HEADER -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gold-200/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Logo Section -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('chat')">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-gold-600 via-yellow-300 to-gold-400 p-0.5 shadow-gold-sm flex items-center justify-center">
+                    <div class="w-full h-full bg-white rounded-full flex items-center justify-center">
+                        <i class="fa-solid font-bold fa-trophy text-gold-500 text-xl trophy-glow"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-serif font-bold text-xl text-gray-900 tracking-wide flex items-center gap-1.5">
+                        MUNDIAL<span class="gold-gradient-text font-extrabold">BOT</span>
+                    </h1>
+                    <p class="text-xs text-gold-700 tracking-wider font-medium uppercase">El Historiador Supremo (1930 - 2026)</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+                <button id="tab-btn-chat" onclick="switchTab('chat')" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-gold-500 text-white shadow-gold-sm">
+                    <i class="fa-solid fa-comments"></i> Chatbot IA
+                </button>
+                <button id="tab-btn-history" onclick="switchTab('history')" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-gold-600 hover:bg-gold-50 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark"></i> Explorador (1930-2022)
+                </button>
+                <button id="tab-btn-records" onclick="switchTab('records')" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-gold-600 hover:bg-gold-50 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-crown"></i> Récords & Goleadores
+                </button>
+                <button id="tab-btn-quiz" onclick="switchTab('quiz')" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-gold-600 hover:bg-gold-50 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad"></i> Trivia Mundialista
+                </button>
+            </nav>
+
+            <!-- Quick Action / Status -->
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gold-100 text-gold-800 border border-gold-300">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> 22 Mundiales Integrados
+                </span>
+                
+                <!-- Mobile Navigation Menu Toggle -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700 hover:text-gold-600 p-2 focus:outline-none">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gold-200 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('chat'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-lg font-medium text-gray-800 hover:bg-gold-50 flex items-center gap-3">
+                <i class="fa-solid fa-comments text-gold-500"></i> Chatbot IA
+            </button>
+            <button onclick="switchTab('history'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-lg font-medium text-gray-800 hover:bg-gold-50 flex items-center gap-3">
+                <i class="fa-solid fa-book-bookmark text-gold-500"></i> Explorador Histórico
+            </button>
+            <button onclick="switchTab('records'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-lg font-medium text-gray-800 hover:bg-gold-50 flex items-center gap-3">
+                <i class="fa-solid fa-crown text-gold-500"></i> Récords & Leyendas
+            </button>
+            <button onclick="switchTab('quiz'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-lg font-medium text-gray-800 hover:bg-gold-50 flex items-center gap-3">
+                <i class="fa-solid fa-gamepad text-gold-500"></i> Trivia Mundialista
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+        <!-- HERO BANNER (White & Gold Theme with Trophy Highlight) -->
+        <div class="relative bg-white rounded-3xl p-6 sm:p-8 mb-8 border border-gold-200 shadow-gold-sm overflow-hidden">
+            <!-- Background Decorative Gold Rings -->
+            <div class="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-gradient-to-br from-yellow-200/40 via-gold-100/20 to-transparent pointer-events-none"></div>
+            <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-gradient-to-tr from-gold-200/30 via-yellow-100/10 to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                
+                <!-- Left Text Info -->
+                <div class="md:col-span-8 space-y-3">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-gold-100 to-amber-50 text-gold-800 border border-gold-300">
+                        <i class="fa-solid fa-star text-gold-500"></i> Base de Datos Completa 1930 - 2026
+                    </div>
+                    <h2 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                        Consulta todos los <span class="gold-gradient-text">Goles, Resultados y Leyendas</span> de la Copa del Mundo
+                    </h2>
+                    <p class="text-sm sm:text-base text-gray-600 max-w-2xl">
+                        Pregúntale a nuestra IA sobre finales, alineaciones, fechas exactas, goleadores, minutos de los goles o estadísticas históricas. ¡Respuesta instantánea con precisión enciclopédica!
+                    </p>
+                    
+                    <!-- Quick Stats Badges -->
+                    <div class="pt-2 flex flex-wrap gap-4 text-xs font-medium text-gray-700">
+                        <div class="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gold-200">
+                            <i class="fa-solid fa-soccer-ball text-gold-500"></i>
+                            <span><b>2,720+</b> Goles Totales</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gold-200">
+                            <i class="fa-solid fa-calendar-days text-gold-500"></i>
+                            <span><b>964</b> Partidos Registrados</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gold-200">
+                            <i class="fa-solid fa-trophy text-gold-500"></i>
+                            <span><b>8</b> Países Campeones</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right FIFA World Cup Trophy Vector Artwork -->
+                <div class="md:col-span-4 flex justify-center items-center relative py-2">
+                    <div class="relative w-44 h-56 flex justify-center items-center animate-float">
+                        
+                        <!-- SVG FIFA World Cup Trophy (High Detail White & Metallic Gold) -->
+                        <svg class="w-full h-full trophy-glow filter drop-shadow-xl" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="goldGradientMain" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFE885"/>
+                                    <stop offset="35%" stop-color="#DAA520"/>
+                                    <stop offset="70%" stop-color="#B8860B"/>
+                                    <stop offset="100%" stop-color="#7A5809"/>
+                                </linearGradient>
+                                <linearGradient id="goldHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#FFFFFF"/>
+                                    <stop offset="50%" stop-color="#FFD700"/>
+                                    <stop offset="100%" stop-color="#C5A028"/>
+                                </linearGradient>
+                                <linearGradient id="malachiteBase" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#0A3A23"/>
+                                    <stop offset="50%" stop-color="#1B603C"/>
+                                    <stop offset="100%" stop-color="#072918"/>
+                                </linearGradient>
+                            </defs>
+
+                            <!-- Trophy Base (Pedestal Double Green Malachite Bands) -->
+                            <path d="M40 270 L160 270 L165 290 L35 290 Z" fill="url(#goldGradientMain)"/>
+                            <rect x="42" y="252" width="116" height="18" rx="2" fill="url(#malachiteBase)" />
+                            <path d="M44 240 L156 240 L158 252 L42 252 Z" fill="url(#goldGradientMain)"/>
+                            <rect x="46" y="226" width="108" height="14" rx="2" fill="url(#malachiteBase)" />
+                            <path d="M48 210 L152 210 L154 226 L46 226 Z" fill="url(#goldGradientMain)"/>
+
+                            <!-- Middle Stem (Abstract Figures holding up the globe) -->
+                            <path d="M70 210 Q65 160 55 130 Q75 120 100 135 Q125 120 145 130 Q135 160 130 210 Z" fill="url(#goldGradientMain)"/>
+                            <path d="M85 210 Q80 170 70 140 Q100 150 100 180 Q100 150 130 140 Q120 170 115 210 Z" fill="url(#goldHighlight)" opacity="0.8"/>
+
+                            <!-- Human Figure Silhouette Lines on Stem -->
+                            <path d="M60 130 Q80 100 100 115 Q120 100 140 130" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                            
+                            <!-- Globe / Earth Top sphere -->
+                            <circle cx="100" cy="75" r="48" fill="url(#goldGradientMain)"/>
+                            <!-- Globe Continents Contour overlay -->
+                            <path d="M70 65 Q85 50 100 60 Q120 55 130 70 Q110 85 90 90 Q75 80 70 65 Z" fill="url(#goldHighlight)" opacity="0.9"/>
+                            <path d="M85 95 Q100 110 120 105 Q125 90 105 85 Z" fill="url(#goldHighlight)" opacity="0.7"/>
+
+                            <!-- Golden Stars Overlay -->
+                            <circle cx="100" cy="35" r="3" fill="#FFFFFF"/>
+                            <circle cx="135" cy="50" r="2" fill="#FFFFFF"/>
+                            <circle cx="65" cy="50" r="2" fill="#FFFFFF"/>
+                        </svg>
+
+                        <!-- Subtle Glow Ring behind trophy -->
+                        <div class="absolute inset-0 bg-gold-400/20 blur-2xl rounded-full -z-10"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SECTION 1: CHATBOT TAB -->
+        <div id="section-chat" class="tab-section space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Chat Window (8 Cols) -->
+                <div class="lg:col-span-8 bg-white rounded-3xl border border-gold-200 shadow-gold-sm flex flex-col h-[620px]">
+                    
+                    <!-- Chat Header -->
+                    <div class="p-4 sm:p-5 border-b border-gold-100 bg-gradient-to-r from-gold-50/60 to-white rounded-t-3xl flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <div class="w-10 h-10 rounded-full bg-gold-500 flex items-center justify-center text-white shadow-gold-sm">
+                                    <i class="fa-solid fa-robot text-lg"></i>
+                                </div>
+                                <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-serif font-bold text-gray-900">MundialBot IA</h3>
+                                <p class="text-xs text-gold-700">Conectado • En vivo con Gemini AI & Base Histórica</p>
+                            </div>
+                        </div>
+
+                        <button onclick="clearChatHistory()" title="Limpiar conversación" class="text-xs text-gray-500 hover:text-gold-700 bg-gray-100 hover:bg-gold-100 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Reiniciar</span>
+                        </button>
+                    </div>
+
+                    <!-- Chat Message Area -->
+                    <div id="chat-messages" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+                        
+                        <!-- Welcome Bot Message -->
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-full bg-gold-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                                <i class="fa-solid fa-trophy text-sm"></i>
+                            </div>
+                            <div class="bg-gold-50/80 border border-gold-200/80 text-gray-800 rounded-2xl rounded-tl-none p-4 max-w-[88%] text-sm shadow-sm leading-relaxed">
+                                <p class="font-bold text-gold-800 mb-1">¡Hola, aficionado al fútbol! 🏆⚽</p>
+                                <p>Soy **MundialBot**, la enciclopedia oficial de todas las Copas del Mundo de la FIFA (1930 - 2026).</p>
+                                <p class="mt-2">Puedes preguntarme cosas como:</p>
+                                <ul class="list-disc pl-5 mt-1 space-y-1 text-xs text-gray-700">
+                                    <li>"¿Quién anotó el gol de la victoria en la final de Brasil 2014?"</li>
+                                    <li>"Alineaciones y goles del partido Argentina vs Inglaterra 1986"</li>
+                                    <li>"Lista completa de todos los goleadores de la Bota de Oro"</li>
+                                    <li>"¿Cuáles finales de Mundial se definieron por penaltis?"</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Input Box Area -->
+                    <div class="p-4 border-t border-gold-100 bg-gray-50/50 rounded-b-3xl">
+                        <form id="chat-form" onsubmit="handleSendMessage(event)" class="relative flex items-center gap-2">
+                            <input 
+                                type="text" 
+                                id="user-input" 
+                                placeholder="Escribe tu consulta sobre cualquier Mundial..." 
+                                class="w-full bg-white border border-gold-300 focus:border-gold-500 focus:ring-2 focus:ring-gold-300/50 rounded-2xl py-3.5 pl-4 pr-12 text-sm text-gray-800 outline-none transition-all placeholder:text-gray-400 shadow-sm"
+                                autocomplete="off"
+                            >
+                            <button 
+                                type="submit" 
+                                id="send-btn"
+                                class="absolute right-2.5 bg-gold-500 hover:bg-gold-600 text-white w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-gold-sm hover:scale-105 active:scale-95 disabled:opacity-50"
+                            >
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </form>
+                        <p class="text-[11px] text-center text-gray-400 mt-2">
+                            Respuestas impulsadas por Gemini API con datos de la FIFA de 1930 a la actualidad.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Suggestions & Quick Filters Sidebar (4 Cols) -->
+                <div class="lg:col-span-4 space-y-5">
+                    
+                    <!-- Suggested Questions Card -->
+                    <div class="bg-white rounded-3xl p-5 border border-gold-200 shadow-gold-sm">
+                        <h4 class="font-serif font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-gold-500"></i> Preguntas Recomendadas
+                        </h4>
+                        <div class="space-y-2">
+                            <button onclick="askQuickQuestion(this.innerText)" class="w-full text-left p-2.5 rounded-xl text-xs bg-gold-50/60 hover:bg-gold-100/80 border border-gold-200/60 text-gray-800 transition-all font-medium flex items-center justify-between group">
+                                <span>¿Quién metió más goles en un solo Mundial?</span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-gold-500 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                            <button onclick="askQuickQuestion(this.innerText)" class="w-full text-left p-2.5 rounded-xl text-xs bg-gold-50/60 hover:bg-gold-100/80 border border-gold-200/60 text-gray-800 transition-all font-medium flex items-center justify-between group">
+                                <span>Resumen de la final de Qatar 2022 (Goles y minutos)</span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-gold-500 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                            <button onclick="askQuickQuestion(this.innerText)" class="w-full text-left p-2.5 rounded-xl text-xs bg-gold-50/60 hover:bg-gold-100/80 border border-gold-200/60 text-gray-800 transition-all font-medium flex items-center justify-between group">
+                                <span>¿Cuál es el gol más rápido de la historia del Mundial?</span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-gold-500 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                            <button onclick="askQuickQuestion(this.innerText)" class="w-full text-left p-2.5 rounded-xl text-xs bg-gold-50/60 hover:bg-gold-100/80 border border-gold-200/60 text-gray-800 transition-all font-medium flex items-center justify-between group">
+                                <span>Detalles del "Maracanazo" de Uruguay en 1950</span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-gold-500 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                            <button onclick="askQuickQuestion(this.innerText)" class="w-full text-left p-2.5 rounded-xl text-xs bg-gold-50/60 hover:bg-gold-100/80 border border-gold-200/60 text-gray-800 transition-all font-medium flex items-center justify-between group">
+                                <span>Tabla de campeones mundiales por número de títulos</span>
+                                <i class="fa-solid fa-chevron-right text-[10px] text-gold-500 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- World Cup Winners Widget -->
+                    <div class="bg-gradient-to-br from-white via-gold-50/40 to-white rounded-3xl p-5 border border-gold-200 shadow-gold-sm">
+                        <h4 class="font-serif font-bold text-gray-900 text-sm mb-3 flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-trophy text-gold-500"></i> Países Campeones</span>
+                            <span class="text-[11px] text-gold-700 font-semibold">22 Torneos</span>
+                        </h4>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇧🇷 Brasil</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">5 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇩🇪 Alemania</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">4 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇮🇹 Italia</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">4 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇦🇷 Argentina</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">3 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇫🇷 Francia</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">2 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇺🇾 Uruguay</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">2 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">1 🏆</span>
+                            </div>
+                            <div class="p-2 bg-white rounded-xl border border-gold-200 flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">🇪🇸 España</span>
+                                <span class="px-2 py-0.5 rounded-md bg-gold-100 text-gold-800 font-bold">1 🏆</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SECTION 2: EXPLORADOR HISTÓRICO (1930 - 2022/2026) -->
+        <div id="section-history" class="tab-section hidden space-y-6">
+            
+            <!-- Filter & Search Controls -->
+            <div class="bg-white rounded-3xl p-5 border border-gold-200 shadow-gold-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div>
+                    <h3 class="font-serif font-bold text-lg text-gray-900">Cronología de Mundiales</h3>
+                    <p class="text-xs text-gray-500">Selecciona o busca cualquier edición desde Uruguay 1930</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gold-500 text-xs"></i>
+                        <input 
+                            type="text" 
+                            id="search-edition" 
+                            placeholder="Buscar por sede, año, campeón..." 
+                            oninput="filterEditions()"
+                            class="w-full pl-9 pr-4 py-2 rounded-xl text-xs bg-gray-50 border border-gold-200 focus:border-gold-500 outline-none"
+                        >
+                    </div>
+
+                    <select id="era-filter" onchange="filterEditions()" class="py-2 px-3 rounded-xl text-xs bg-gray-50 border border-gold-200 focus:border-gold-500 outline-none font-medium text-gray-700">
+                        <option value="all">Todas las Épocas</option>
+                        <option value="classic">Clásicos (1930 - 1970)</option>
+                        <option value="modern">Moderna (1974 - 2002)</option>
+                        <option value="recent">Recientes (2006 - 2022)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- World Cup Cards Grid -->
+            <div id="mundiales-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards dynamically generated via JavaScript -->
+            </div>
+
+        </div>
+
+        <!-- SECTION 3: RÉCORDS Y LEYENDAS -->
+        <div id="section-records" class="tab-section hidden space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Record 1: Máximos Goleadores Históricos -->
+                <div class="bg-white rounded-3xl p-6 border border-gold-200 shadow-gold-sm space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gold-100 text-gold-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-futbol text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-serif font-bold text-gray-900">Máximos Goleadores</h4>
+                            <p class="text-xs text-gray-500">Histórico de la Copa del Mundo</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex items-center justify-between p-2.5 bg-gold-50/50 rounded-xl border border-gold-200/50">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gold-700 w-4">1.</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Miroslav Klose 🇩🇪</p>
+                                    <p class="text-[10px] text-gray-500">2002 - 2014 (24 partidos)</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-gold-500 text-white rounded-lg font-extrabold">16 goles</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-500 w-4">2.</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Ronaldo Nazário 🇧🇷</p>
+                                    <p class="text-[10px] text-gray-500">1998 - 2006 (19 partidos)</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-gold-100 text-gold-800 rounded-lg font-bold">15 goles</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-500 w-4">3.</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Gerd Müller 🇩🇪</p>
+                                    <p class="text-[10px] text-gray-500">1970 - 1974 (13 partidos)</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-gold-100 text-gold-800 rounded-lg font-bold">14 goles</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-500 w-4">4.</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Lionel Messi 🇦🇷</p>
+                                    <p class="text-[10px] text-gray-500">2006 - 2022 (26 partidos)</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-gold-100 text-gold-800 rounded-lg font-bold">13 goles</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-500 w-4">5.</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Just Fontaine 🇫🇷</p>
+                                    <p class="text-[10px] text-gray-500">1958 (Solo 6 partidos)</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-gold-100 text-gold-800 rounded-lg font-bold">13 goles</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-500 w-4">6.</span>
+                                <div>
+                                    <p class="font-bold text-gray-800">Kylian Mbappé 🇫🇷</p>
+                                    <p class="text-[10px] text-gray-500">2018 - 2022 (14 partidos)</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 bg-gold-100 text-gold-800 rounded-lg font-bold">12 goles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Record 2: Récords Legendarios -->
+                <div class="bg-white rounded-3xl p-6 border border-gold-200 shadow-gold-sm space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gold-100 text-gold-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-award text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-serif font-bold text-gray-900">Hitosis y Curiosidades</h4>
+                            <p class="text-xs text-gray-500">Datos inolvidables de la historia</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div class="p-3 bg-gold-50/40 rounded-2xl border border-gold-200/60">
+                            <p class="font-bold text-gold-800 mb-0.5">👑 Más Títulos como Jugador</p>
+                            <p class="text-gray-700"><b>Pelé 🇧🇷</b> es el único jugador que ha ganado 3 Copas del Mundo (1958, 1962 y 1970).</p>
+                        </div>
+
+                        <div class="p-3 bg-gold-50/40 rounded-2xl border border-gold-200/60">
+                            <p class="font-bold text-gold-800 mb-0.5">⚡ Gol Más Rápido</p>
+                            <p class="text-gray-700"><b>Hakan Şükür 🇹🇷</b> anotó a los 11 segundos del partido Turquía vs Corea del Sur en 2002.</p>
+                        </div>
+
+                        <div class="p-3 bg-gold-50/40 rounded-2xl border border-gold-200/60">
+                            <p class="font-bold text-gold-800 mb-0.5">⚽ Más Goles en un Partido</p>
+                            <p class="text-gray-700"><b>Oleg Salenko 🇷🇺</b> marcó 5 goles en el partido Rusia vs Camerún en 1994 (Resultado: 6-1).</p>
+                        </div>
+
+                        <div class="p-3 bg-gold-50/40 rounded-2xl border border-gold-200/60">
+                            <p class="font-bold text-gold-800 mb-0.5">🏃‍♂️ Más Partidos Jugados</p>
+                            <p class="text-gray-700"><b>Lionel Messi 🇦🇷</b> ostenta el récord histórico con 26 encuentros jugados en Mundiales.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Record 3: Datos de Finales -->
+                <div class="bg-white rounded-3xl p-6 border border-gold-200 shadow-gold-sm space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gold-100 text-gold-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-star text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-serif font-bold text-gray-900">Finales Épicas</h4>
+                            <p class="text-xs text-gray-500">Detalles clave de partidos definitivos</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div class="p-3 bg-gray-50 rounded-2xl border border-gray-200">
+                            <span class="text-[10px] uppercase font-bold text-gold-700">Qatar 2022</span>
+                            <p class="font-bold text-gray-800 mt-0.5">Argentina 3 (4) - (2) 3 Francia</p>
+                            <p class="text-gray-600 text-[11px] mt-1">Goles: Messi (23' P, 108'), Di María (36') / Mbappé (80' P, 81', 118' P). Para muchos, la mejor final de todos los tiempos.</p>
+                        </div>
+
+                        <div class="p-3 bg-gray-50 rounded-2xl border border-gray-200">
+                            <span class="text-[10px] uppercase font-bold text-gold-700">México 1986</span>
+                            <p class="font-bold text-gray-800 mt-0.5">Argentina 3 - 2 Alemania Fed.</p>
+                            <p class="text-gray-600 text-[11px] mt-1">Goles: Brown (23'), Valdano (55'), Burruchaga (84') / Rummenigge (74'), Völler (81'). La consagración de Diego Maradona.</p>
+                        </div>
+
+                        <div class="p-3 bg-gray-50 rounded-2xl border border-gray-200">
+                            <span class="text-[10px] uppercase font-bold text-gold-700">Suecia 1958</span>
+                            <p class="font-bold text-gray-800 mt-0.5">Brasil 5 - 2 Suecia</p>
+                            <p class="text-gray-600 text-[11px] mt-1">Pelé con solo 17 años anotó 2 goles magistrales para darle a Brasil su primer título mundial.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SECTION 4: TRIVIA MUNDIALISTA -->
+        <div id="section-quiz" class="tab-section hidden space-y-6">
+            
+            <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-gold-200 shadow-gold-sm text-center">
+                
+                <div class="w-16 h-16 rounded-2xl bg-gold-100 text-gold-600 mx-auto flex items-center justify-center text-2xl font-bold mb-4 shadow-sm">
+                    <i class="fa-solid fa-circle-question"></i>
+                </div>
+
+                <h3 class="font-serif font-bold text-2xl text-gray-900 mb-2">Desafío Mundialista IA</h3>
+                <p class="text-sm text-gray-600 mb-6">Demuestra cuánto sabes sobre la historia de las Copas del Mundo</p>
+
+                <!-- Quiz Card Container -->
+                <div id="quiz-container" class="space-y-6 text-left">
+                    <div id="quiz-card" class="bg-gold-50/60 p-6 rounded-2xl border border-gold-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <span id="quiz-step" class="text-xs font-bold uppercase tracking-wider text-gold-700">Pregunta 1 de 5</span>
+                            <span id="quiz-score" class="text-xs font-semibold bg-white px-3 py-1 rounded-full border border-gold-200 text-gray-800">Puntos: 0</span>
+                        </div>
+                        <h4 id="quiz-question" class="font-serif font-bold text-gray-900 text-lg mb-4">
+                            Cargando pregunta...
+                        </h4>
+                        
+                        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Options injected dynamically -->
+                        </div>
+                    </div>
+
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-center text-sm font-semibold"></div>
+
+                    <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full py-3 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-xl transition-all shadow-gold-sm">
+                        Siguiente Pregunta <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL FOR DETAILED WORLD CUP INFO -->
+    <div id="wc-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl border border-gold-300 shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            
+            <!-- Modal Header -->
+            <div id="modal-header" class="p-6 bg-gradient-to-r from-gold-500 via-amberGold to-gold-600 text-white flex justify-between items-start">
+                <div>
+                    <span id="modal-year-badge" class="px-3 py-1 bg-white/20 rounded-full text-xs font-extrabold uppercase tracking-widest text-white">1970</span>
+                    <h3 id="modal-title" class="font-serif text-2xl font-bold mt-2">Mundial México 1970</h3>
+                    <p id="modal-subtitle" class="text-xs text-gold-100 font-medium">Campeón: Brasil 🇧🇷 (3er Título)</p>
+                </div>
+                <button onclick="closeModal()" class="w-9 h-9 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div id="modal-body" class="p-6 overflow-y-auto space-y-5 text-sm text-gray-700">
+                <!-- Content injected via JS -->
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="p-4 bg-gray-50 border-t border-gold-100 flex justify-between items-center">
+                <button id="ask-bot-about-wc" class="px-4 py-2 bg-gold-100 hover:bg-gold-200 text-gold-800 text-xs font-bold rounded-xl transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-robot"></i> Consultar a MundialBot sobre este Mundial
+                </button>
+                <button onclick="closeModal()" class="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition-all">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gold-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <div class="flex items-center justify-center gap-2 text-gold-600 font-serif font-bold text-sm">
+                <i class="fa-solid fa-trophy"></i> MundialBot Enciclopedia Interactiva FIFA
+            </div>
+            <p class="text-xs text-gray-500">
+                Diseñado en estética Blanco y Dorado con inteligencia artificial integrada. © 1930 - 2026. Todos los datos de las Copas del Mundo.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           WORLD CUP HISTORICAL DATABASE (1930 - 2022 + 2026 PREVIEW)
+           ========================================================================== */
+        const WORLD_CUPS_DATA = [
+            {
+                year: 1930,
+                host: "Uruguay 🇺🇾",
+                champion: "Uruguay 🇺🇾",
+                runnerUp: "Argentina 🇦🇷",
+                scoreFinal: "4 - 2",
+                topScorer: "Guillermo Stábile (🇦🇷) - 8 goles",
+                totalGoals: 70,
+                totalMatches: 18,
+                era: "classic",
+                description: "El primer Mundial de la historia organizando por la FIFA en Montevideo. Se jugó enteramente en el Estadio Centenario.",
+                highlights: "La final entre Uruguay y Argentina se jugó con dos balones distintos (uno argentino en la primera parte y otro uruguayo en la segunda)."
+            },
+            {
+                year: 1934,
+                host: "Italia 🇮🇹",
+                champion: "Italia 🇮🇹",
+                runnerUp: "Checoslovaquia 🇨🇿",
+                scoreFinal: "2 - 1 (pró.)",
+                topScorer: "Oldřich Nejedlý (🇨🇿) - 5 goles",
+                totalGoals: 70,
+                totalMatches: 17,
+                era: "classic",
+                description: "Primera edición celebrada en Europa. El torneo se disputó en formato de eliminación directa desde octavos de final.",
+                highlights: "Angelo Schiavio anotó el gol de la victoria en la prórroga para darle a Italia su primera estrella."
+            },
+            {
+                year: 1938,
+                host: "Francia 🇫🇷",
+                champion: "Italia 🇮🇹",
+                runnerUp: "Hungría 🇭🇺",
+                scoreFinal: "4 - 2",
+                topScorer: "Leônidas (🇧🇷) - 7 goles",
+                totalGoals: 84,
+                totalMatches: 18,
+                era: "classic",
+                description: "Último Mundial antes del estallido de la Segunda Guerra Mundial. Italia bicampeona bajo la dirección de Vittorio Pozzo.",
+                highlights: "Leônidas da Silva se consagró como el inventor de la 'chilena' en las canchas galas."
+            },
+            {
+                year: 1950,
+                host: "Brasil 🇧🇷",
+                champion: "Uruguay 🇺🇾",
+                runnerUp: "Brasil 🇧🇷",
+                scoreFinal: "2 - 1 (Fase final)",
+                topScorer: "Ademir (🇧🇷) - 8 goles",
+                totalGoals: 88,
+                totalMatches: 22,
+                era: "classic",
+                description: "Famoso por el 'Maracanazo'. No hubo una final formal, sino un cuadrangular final donde el partido decisivo consagró a la Celeste.",
+                highlights: "Alcides Ghiggia anotó el gol decisivo al minuto 79 en Maracaná enmudeciendo a 200,000 espectadores."
+            },
+            {
+                year: 1954,
+                host: "Suiza 🇨🇭",
+                champion: "Alemania Fed. 🇩🇪",
+                runnerUp: "Hungría 🇭🇺",
+                scoreFinal: "3 - 2",
+                topScorer: "Sándor Kocsis (🇭🇺) - 11 goles",
+                totalGoals: 140,
+                totalMatches: 26,
+                era: "classic",
+                description: "Conocido por el 'Milagro de Berna'. Alemania venció a la invencible 'Sombra Poderosa' de Hungría de Puskás.",
+                highlights: "Promedio récord de 5.38 goles por partido en todo el torneo."
+            },
+            {
+                year: 1958,
+                host: "Suecia 🇸🇪",
+                champion: "Brasil 🇧🇷",
+                runnerUp: "Suecia 🇸🇪",
+                scoreFinal: "5 - 2",
+                topScorer: "Just Fontaine (🇫🇷) - 13 goles",
+                totalGoals: 126,
+                totalMatches: 35,
+                era: "classic",
+                description: "El surgimiento del Rey Pelé a sus 17 años de edad. Primer título mundial para Brasil.",
+                highlights: "Just Fontaine logró el récord inalcanzable de 13 goles en una sola edición."
+            },
+            {
+                year: 1962,
+                host: "Chile 🇨🇱",
+                champion: "Brasil 🇧🇷",
+                runnerUp: "Checoslovaquia 🇨🇿",
+                scoreFinal: "3 - 1",
+                topScorer: "Garrincha, Vavá y otros - 4 goles",
+                totalGoals: 89,
+                totalMatches: 32,
+                era: "classic",
+                description: "Brasil revalidó su título con una deslumbrante actuación de Garrincha tras la lesión temprana de Pelé.",
+                highlights: "La 'Batalla de Santiago' entre Chile e Italia quedó como uno de los partidos más violentos registrados."
+            },
+            {
+                year: 1966,
+                host: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+                champion: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+                runnerUp: "Alemania Fed. 🇩🇪",
+                scoreFinal: "4 - 2 (pró.)",
+                topScorer: "Eusébio (🇵🇹) - 9 goles",
+                totalGoals: 89,
+                totalMatches: 32,
+                era: "classic",
+                description: "La cuna del fútbol albergó y ganó su única Copa del Mundo en Wembley.",
+                highlights: "El polémico 'gol fantasma' de Geoff Hurst en la prórroga que desempató la final."
+            },
+            {
+                year: 1970,
+                host: "México 🇲🇽",
+                champion: "Brasil 🇧🇷",
+                runnerUp: "Italia 🇮🇹",
+                scoreFinal: "4 - 1",
+                topScorer: "Gerd Müller (🇩🇪) - 10 goles",
+                totalGoals: 95,
+                totalMatches: 32,
+                era: "classic",
+                description: "Considerado por muchos el mejor Mundial de la historia. Transmitido a color por primera vez.",
+                highlights: "Consagración de Pelé en el Estadio Azteca con el célebre Brasil del '70. Se introdujeron tarjetas amarillas y rojas."
+            },
+            {
+                year: 1974,
+                host: "Alemania 🇩🇪",
+                champion: "Alemania Fed. 🇩🇪",
+                runnerUp: "Países Bajos 🇳🇱",
+                scoreFinal: "2 - 1",
+                topScorer: "Grzegorz Lato (🇵🇱) - 7 goles",
+                totalGoals: 97,
+                totalMatches: 38,
+                era: "modern",
+                description: "Debut de la 'Naranja Mecánica' de Johan Cruyff con su 'Fútbol Total'. Se estrenó el actual trofeo FIFA.",
+                highlights: "Gerd Müller anotó el gol del triunfo alemán en Múnich para alzarse con la nueva copa."
+            },
+            {
+                year: 1978,
+                host: "Argentina 🇦🇷",
+                champion: "Argentina 🇦🇷",
+                runnerUp: "Países Bajos 🇳🇱",
+                scoreFinal: "3 - 1 (pró.)",
+                topScorer: "Mario Kempes (🇦🇷) - 6 goles",
+                totalGoals: 102,
+                totalMatches: 38,
+                era: "modern",
+                description: "Primer título para la albiceleste con Mario Alberto Kempes descollante en el Estadio Monumental.",
+                highlights: "Dramática prórroga en la final cubierta de papelitos festivos en Buenos Aires."
+            },
+            {
+                year: 1982,
+                host: "España 🇪🇸",
+                champion: "Italia 🇮🇹",
+                runnerUp: "Alemania Fed. 🇩🇪",
+                scoreFinal: "3 - 1",
+                topScorer: "Paolo Rossi (🇮🇹) - 6 goles",
+                totalGoals: 141,
+                totalMatches: 52,
+                era: "modern",
+                description: "Expansión a 24 selecciones. Resurrección futbolística de Paolo Rossi para el tricampeonato italiano.",
+                highlights: "La mítica celebración eufórica de Marco Tardelli en el gol de la final en el Santiago Bernabéu."
+            },
+            {
+                year: 1986,
+                host: "México 🇲🇽",
+                champion: "Argentina 🇦🇷",
+                runnerUp: "Alemania Fed. 🇩🇪",
+                scoreFinal: "3 - 2",
+                topScorer: "Gary Lineker (🏴󠁧󠁢󠁥󠁮󠁧󠁿) - 6 goles",
+                totalGoals: 132,
+                totalMatches: 52,
+                era: "modern",
+                description: "La cumbre dorada de Diego Armando Maradona con sus momentos legendarios ante Inglaterra.",
+                highlights: "En cuartos de final: 'La Mano de Dios' y el 'Gol del Siglo' arrancando desde mitad de cancha."
+            },
+            {
+                year: 1990,
+                host: "Italia 🇮🇹",
+                champion: "Alemania Fed. 🇩🇪",
+                runnerUp: "Argentina 🇦🇷",
+                scoreFinal: "1 - 0",
+                topScorer: "Salvatore Schillaci (🇮🇹) - 6 goles",
+                totalGoals: 115,
+                totalMatches: 52,
+                era: "modern",
+                description: "Un torneo táctico y defensivo recordado por la canción 'Un'estate italiana' y la revelación de Camerún.",
+                highlights: "Andreas Brehme definió de penalti al minuto 85 en el Estadio Olímpico de Roma."
+            },
+            {
+                year: 1994,
+                host: "Estados Unidos 🇺🇸",
+                champion: "Brasil 🇧🇷",
+                runnerUp: "Italia 🇮🇹",
+                scoreFinal: "0 - 0 (3 - 2 pen.)",
+                topScorer: "Hristo Stoichkov (🇧🇬) y Oleg Salenko (🇷🇺) - 6 goles",
+                totalGoals: 141,
+                totalMatches: 52,
+                era: "modern",
+                description: "Éxito masivo de asistencia en estadios estadounidenses. Primera final decidida por penaltis.",
+                highlights: "El fallo del penalti de Roberto Baggio que le otorgó el tetracampeonato al Brasil de Romário y Dunga."
+            },
+            {
+                year: 1998,
+                host: "Francia 🇫🇷",
+                champion: "Francia 🇫🇷",
+                runnerUp: "Brasil 🇧🇷",
+                scoreFinal: "3 - 0",
+                topScorer: "Davor Šuker (🇭🇷) - 6 goles",
+                totalGoals: 171,
+                totalMatches: 64,
+                era: "modern",
+                description: "Formato ampliado a 32 selecciones. Recital de Zinedine Zidane en la gran final de Saint-Denis.",
+                highlights: "Dos goles de cabeza de Zidane en la final doblegando al favorito Brasil."
+            },
+            {
+                year: 2002,
+                host: "Corea del Sur / Japón 🇰🇷🇯🇵",
+                champion: "Brasil 🇧🇷",
+                runnerUp: "Alemania 🇩🇪",
+                scoreFinal: "2 - 0",
+                topScorer: "Ronaldo Nazário (🇧🇷) - 8 goles",
+                totalGoals: 161,
+                totalMatches: 64,
+                era: "modern",
+                description: "Primer Mundial realizado en Asia y coorganizado por dos países. La 'Redención de Ronaldo'.",
+                highlights: "Ronaldo marcó doblete en Yokohama venciendo al portero Oliver Kahn para el pentacampeonato de la verdeamarela."
+            },
+            {
+                year: 2006,
+                host: "Alemania 🇩🇪",
+                champion: "Italia 🇮🇹",
+                runnerUp: "Francia 🇫🇷",
+                scoreFinal: "1 - 1 (5 - 3 pen.)",
+                topScorer: "Miroslav Klose (🇩🇪) - 5 goles",
+                totalGoals: 147,
+                totalMatches: 64,
+                era: "recent",
+                description: "Un torneo memorable en organización. Italia fue tetracampeona sostenida por Fabio Cannavaro y Gianluigi Buffon.",
+                highlights: "El cabezazo de Zidane a Materazzi en la prórroga antes del desenlace de penaltis en Berlín."
+            },
+            {
+                year: 2010,
+                host: "Sudáfrica 🇿🇦",
+                champion: "España 🇪🇸",
+                runnerUp: "Países Bajos 🇳🇱",
+                scoreFinal: "1 - 0 (pró.)",
+                topScorer: "Thomas Müller, Villa, Sneijder, Forlán - 5 goles",
+                totalGoals: 145,
+                totalMatches: 64,
+                era: "recent",
+                description: "Primer Mundial disputado en suelo africano, famoso por el sonido de las vuvuzelas y el 'tiki-taka' de España.",
+                highlights: "El gol de Andrés Iniesta al minuto 116 en Johannesburgo sellando el histórico título de la Roja."
+            },
+            {
+                year: 2014,
+                host: "Brasil 🇧🇷",
+                champion: "Alemania 🇩🇪",
+                runnerUp: "Argentina 🇦🇷",
+                scoreFinal: "1 - 0 (pró.)",
+                topScorer: "James Rodríguez (🇨🇴) - 6 goles",
+                totalGoals: 171,
+                totalMatches: 64,
+                era: "recent",
+                description: "Mundial vibrante marcado por la goleada histórica 7-1 de Alemania a Brasil en semifinales.",
+                highlights: "Mario Götze anotó de volea en el minuto 113 de la final en Maracaná."
+            },
+            {
+                year: 2018,
+                host: "Rusia 🇷🇺",
+                champion: "Francia 🇫🇷",
+                runnerUp: "Croacia 🇭🇷",
+                scoreFinal: "4 - 2",
+                topScorer: "Harry Kane (🏴󠁧󠁢󠁥󠁮󠁧󠁿) - 6 goles",
+                totalGoals: 169,
+                totalMatches: 64,
+                era: "recent",
+                description: "Implementación oficial del sistema de arbitraje por video (VAR). Francia logró su segunda estrella con una generación dorada.",
+                highlights: "Eclosión mundial de Kylian Mbappé y la gran gesta de la Croacia de Luka Modrić."
+            },
+            {
+                year: 2022,
+                host: "Catar 🇶🇦",
+                champion: "Argentina 🇦🇷",
+                runnerUp: "Francia 🇫🇷",
+                scoreFinal: "3 - 3 (4 - 2 pen.)",
+                topScorer: "Kylian Mbappé (🇫🇷) - 8 goles",
+                totalGoals: 172,
+                totalMatches: 64,
+                era: "recent",
+                description: "Primer Mundial invernal disputado en Oriente Medio. La coronación soñada de Lionel Messi.",
+                highlights: "Considerada la mejor final de todos los tiempos (3-3 con triplete de Mbappé y doblete de Messi)."
+            },
+            {
+                year: 2026,
+                host: "EE.UU. / Canadá / México 🇺🇸🇨🇦🇲🇽",
+                champion: "Por disputarse 🏆",
+                runnerUp: "-",
+                scoreFinal: "-",
+                topScorer: "Próximamente",
+                totalGoals: 0,
+                totalMatches: 104,
+                era: "recent",
+                description: "Primera edición tricontinental con 48 selecciones participantes.",
+                highlights: "El Azteca se convertirá en el único estadio en albergar 3 partidos inaugurales de Copas del Mundo."
+            }
+        ];
+
+        /* ==========================================================================
+           TAB SWITCHING LOGIC
+           ========================================================================== */
+        function switchTab(tabId) {
+            // Hide all tab sections
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            
+            // Deactivate header buttons styling
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:text-gold-600 hover:bg-gold-50 transition-all flex items-center gap-2";
+            });
+
+            // Show active section & highlight active button
+            const activeSection = document.getElementById(`section-${tabId}`);
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+
+            if (activeSection) activeSection.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-gold-500 text-white shadow-gold-sm";
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        /* ==========================================================================
+           HISTORICAL EXPLORER RENDER & FILTER
+           ========================================================================== */
+        function renderMundialesGrid(data) {
+            const grid = document.getElementById('mundiales-grid');
+            grid.innerHTML = '';
+
+            data.forEach(wc => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl p-5 border border-gold-200/90 shadow-gold-sm hover:shadow-gold-md hover:border-gold-400 transition-all cursor-pointer flex flex-col justify-between group";
+                card.onclick = () => openModal(wc.year);
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-black tracking-widest text-gold-700 bg-gold-100/70 border border-gold-200 px-3 py-1 rounded-full">
+                                ${wc.year}
+                            </span>
+                            <span class="text-xs text-gray-400 font-medium">
+                                <i class="fa-solid fa-soccer-ball text-gold-400 mr-1"></i> ${wc.totalGoals} Goles
+                            </span>
+                        </div>
+
+                        <div>
+                            <h4 class="font-serif font-bold text-lg text-gray-900 group-hover:text-gold-600 transition-colors">
+                                ${wc.host}
+                            </h4>
+                            <p class="text-xs text-gold-800 font-bold mt-1 flex items-center gap-1">
+                                <span>🏆 Campeón:</span> <span class="text-gray-800">${wc.champion}</span>
+                            </p>
+                        </div>
+
+                        <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                            ${wc.description}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 mt-3 border-t border-gold-100 flex items-center justify-between text-xs">
+                        <span class="text-gray-500 text-[11px] font-medium">
+                            🥈 Subcampeón: ${wc.runnerUp}
+                        </span>
+                        <span class="text-gold-600 font-bold flex items-center gap-1 text-[11px] group-hover:translate-x-1 transition-transform">
+                            Detalles <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                        </span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterEditions() {
+            const searchVal = document.getElementById('search-edition').value.toLowerCase();
+            const eraVal = document.getElementById('era-filter').value;
+
+            const filtered = WORLD_CUPS_DATA.filter(wc => {
+                const matchesSearch = wc.host.toLowerCase().includes(searchVal) ||
+                                      wc.champion.toLowerCase().includes(searchVal) ||
+                                      wc.year.toString().includes(searchVal) ||
+                                      wc.description.toLowerCase().includes(searchVal);
+
+                const matchesEra = (eraVal === 'all') || (wc.era === eraVal);
+
+                return matchesSearch && matchesEra;
+            });
+
+            renderMundialesGrid(filtered);
+        }
+
+        /* ==========================================================================
+           MODAL DETAILS LOGIC
+           ========================================================================== */
+        let currentModalYear = null;
+
+        function openModal(year) {
+            const wc = WORLD_CUPS_DATA.find(item => item.year === year);
+            if (!wc) return;
+
+            currentModalYear = year;
+            document.getElementById('modal-year-badge').innerText = wc.year;
+            document.getElementById('modal-title').innerText = `Mundial ${wc.host}`;
+            document.getElementById('modal-subtitle').innerText = `Campeón: ${wc.champion} • Final: ${wc.scoreFinal}`;
+
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="bg-gold-50/60 p-3 rounded-2xl border border-gold-200/60">
+                        <p class="text-[10px] uppercase font-bold text-gold-700">Campeón</p>
+                        <p class="font-bold text-gray-900 mt-0.5 text-xs">${wc.champion}</p>
+                    </div>
+                    <div class="bg-gold-50/60 p-3 rounded-2xl border border-gold-200/60">
+                        <p class="text-[10px] uppercase font-bold text-gold-700">Subcampeón</p>
+                        <p class="font-bold text-gray-900 mt-0.5 text-xs">${wc.runnerUp}</p>
+                    </div>
+                    <div class="bg-gold-50/60 p-3 rounded-2xl border border-gold-200/60">
+                        <p class="text-[10px] uppercase font-bold text-gold-700">Bota de Oro</p>
+                        <p class="font-bold text-gray-900 mt-0.5 text-xs">${wc.topScorer}</p>
+                    </div>
+                    <div class="bg-gold-50/60 p-3 rounded-2xl border border-gold-200/60">
+                        <p class="text-[10px] uppercase font-bold text-gold-700">Goles / Partidos</p>
+                        <p class="font-bold text-gray-900 mt-0.5 text-xs">${wc.totalGoals} goles en ${wc.totalMatches} PJ</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h5 class="font-serif font-bold text-gray-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-file-text text-gold-500"></i> Resumen del Torneo
+                    </h5>
+                    <p class="text-gray-700 leading-relaxed text-xs sm:text-sm">
+                        ${wc.description}
+                    </p>
+                </div>
+
+                <div class="p-4 bg-amber-50/60 rounded-2xl border border-gold-200 space-y-1">
+                    <h5 class="font-serif font-bold text-gold-800 text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-star text-gold-500"></i> Hito Inolvidable
+                    </h5>
+                    <p class="text-xs text-gray-800 leading-relaxed">
+                        ${wc.highlights}
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('ask-bot-about-wc').onclick = () => {
+                closeModal();
+                switchTab('chat');
+                askQuickQuestion(`Dame un informe ultra detallado con alineaciones, momentos clave y anécdotas del Mundial ${wc.host}`);
+            };
+
+            const modal = document.getElementById('wc-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('wc-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        /* ==========================================================================
+           GEMINI API & CHATBOT LOGIC
+           ========================================================================== */
+        const SYSTEM_PROMPT = `
+Eres MundialBot, la enciclopedia oficial interactiva y el historiador supremo de todos los Mundiales de Fútbol de la FIFA (desde Uruguay 1930 hasta la Copa del Mundo de Estados Unidos, Canadá y México 2026).
+
+TUS CONOCIMIENTOS INCLUYEN:
+- Todos los partidos, resultados exactos, fechas, estadios y árbitros.
+- Todos los goles, minuto a minuto, goleadores y autogoles.
+- Plantillas, alineaciones históricas, directores técnicos y sistemas tácticos.
+- Récords (máximos goleadores como Klose, Ronaldo, Müller, Messi, Pelé, Fontaine).
+- Anecdotario completo ("Maracanazo", "Mano de Dios", "Gol del Siglo", "Milagro de Berna", "La Batalla de Santiago", la cabezazo de Zidane, etc.).
+- Formato del torneo, estadísticas de córners, tarjetas y tandas de penaltis.
+
+DIRECTRICES DE RESPUESTA:
+- Responde siempre en español claro, elegante y apasionado pero con rigor enciclopédico.
+- Usa formato Markdown con viñetas, negritas para resaltar nombres de jugadores y marcadores, e incluye emojis de banderas y balones cuando aplique.
+- Si te preguntan sobre un partido específico, intenta estructurar tu respuesta con: 
+  1) Fecha y Sede, 2) Marcador final y goles (minuto y jugador), 3) Contexto o momentos destacados.
+- Mantén un tono elegante y hospitalario acorde al diseño blanco y dorado del sitio.
+`;
+
+        let chatHistory = [];
+
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('user-input');
+            const message = inputEl.value.trim();
+
+            if (!message) return;
+
+            // Render User Message
+            appendUserMessage(message);
+            inputEl.value = '';
+
+            // Render Loading Indicator
+            const loadingId = appendLoadingIndicator();
+
+            try {
+                // Prepare API Payload with gemini-3-flash-preview
+                const apiKey = ""; // Canvas runtime automatically supplies API key if left empty
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                chatHistory.push({
+                    role: "user",
+                    parts: [{ text: message }]
+                });
+
+                const payload = {
+                    contents: chatHistory,
+                    systemInstruction: {
+                        parts: [{ text: SYSTEM_PROMPT }]
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                removeLoadingIndicator(loadingId);
+
+                const botText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (botText) {
+                    appendBotMessage(botText);
+                    chatHistory.push({
+                        role: "model",
+                        parts: [{ text: botText }]
+                    });
+                } else {
+                    // Fallback to offline search if API responds with structured error
+                    fallbackLocalSearch(message);
+                }
+
+            } catch (err) {
+                console.error("Gemini API Error:", err);
+                removeLoadingIndicator(loadingId);
+                fallbackLocalSearch(message);
+            }
+        }
+
+        function fallbackLocalSearch(query) {
+            const q = query.toLowerCase();
+            let match = WORLD_CUPS_DATA.find(wc => 
+                q.includes(wc.year.toString()) || 
+                q.includes(wc.host.toLowerCase()) || 
+                q.includes(wc.champion.toLowerCase())
+            );
+
+            if (match) {
+                const response = `
+**Información disponible sobre ${match.host}:**
+
+* 🏆 **Campeón:** ${match.champion}
+* 🥈 **Subcampeón:** ${match.runnerUp}
+* ⚽ **Resultado Final:** ${match.scoreFinal}
+* 🥇 **Bota de Oro:** ${match.topScorer}
+* 📊 **Estadísticas:** ${match.totalGoals} goles en ${match.totalMatches} partidos.
+
+**Resumen Histórico:**
+${match.description}
+
+**Momento Destacado:**
+${match.highlights}
+`;
+                appendBotMessage(response);
+            } else {
+                appendBotMessage("No se pudo conectar en vivo con el servidor Gemini, pero puedes consultar los datos completos en nuestra sección **Explorador (1930-2022)** del menú superior.");
+            }
+        }
+
+        function appendUserMessage(text) {
+            const container = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "flex items-start justify-end gap-3";
+            msgDiv.innerHTML = `
+                <div class="bg-gold-500 text-white font-medium rounded-2xl rounded-tr-none p-3.5 max-w-[85%] text-sm shadow-gold-sm">
+                    ${escapeHtml(text)}
+                </div>
+                <div class="w-8 h-8 rounded-full bg-gold-200 text-gold-800 flex items-center justify-center shrink-0 font-bold text-xs mt-1">
+                    Tú
+                </div>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendBotMessage(markdownText) {
+            const container = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "flex items-start gap-3";
+            
+            const parsedHtml = marked.parse(markdownText);
+
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                    <i class="fa-solid fa-trophy text-xs"></i>
+                </div>
+                <div class="bg-gold-50/90 border border-gold-200/80 text-gray-800 rounded-2xl rounded-tl-none p-4 max-w-[88%] text-sm shadow-sm markdown-body">
+                    ${parsedHtml}
+                </div>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendLoadingIndicator() {
+            const container = document.getElementById('chat-messages');
+            const id = 'loading-' + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.id = id;
+            msgDiv.className = "flex items-start gap-3";
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                    <i class="fa-solid fa-trophy text-xs"></i>
+                </div>
+                <div class="bg-gold-50/80 border border-gold-200 text-gray-700 rounded-2xl rounded-tl-none p-3.5 text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-spinner fa-spin text-gold-600"></i>
+                    <span>Consultando archivos históricos de la FIFA...</span>
+                </div>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function removeLoadingIndicator(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function askQuickQuestion(questionText) {
+            switchTab('chat');
+            document.getElementById('user-input').value = questionText;
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        }
+
+        function clearChatHistory() {
+            chatHistory = [];
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gold-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-1">
+                        <i class="fa-solid fa-trophy text-xs"></i>
+                    </div>
+                    <div class="bg-gold-50/80 border border-gold-200/80 text-gray-800 rounded-2xl rounded-tl-none p-4 max-w-[88%] text-sm shadow-sm leading-relaxed">
+                        <p class="font-bold text-gold-800 mb-1">Conversación reiniciada 🏆</p>
+                        <p>¿Qué otro dato o partido histórico de la Copa del Mundo deseas consultar?</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        /* ==========================================================================
+           TRIVIA / QUIZ MODULE LOGIC
+           ========================================================================== */
+        const TRIVIA_QUESTIONS = [
+            {
+                q: "¿Quién es el máximo goleador histórico en la historia de la Copa del Mundo?",
+                options: ["Ronaldo Nazário", "Miroslav Klose", "Pelé", "Lionel Messi"],
+                answer: 1,
+                exp: "Miroslav Klose (Alemania) anotó 16 goles entre los Mundiales de 2002, 2006, 2010 y 2014."
+            },
+            {
+                q: "¿En qué edición se utilizó el VAR (Video Arbitraje) por primera vez en la historia?",
+                options: ["Brasil 2014", "Rusia 2018", "Catar 2022", "Sudáfrica 2010"],
+                answer: 1,
+                exp: "Rusia 2018 fue el primer Mundial oficial con la implementación del sistema VAR."
+            },
+            {
+                q: "¿Qué jugadorostenta el récord de más goles anotados en una sola edición del Mundial?",
+                options: ["Gerd Müller (10)", "Just Fontaine (13)", "Kylian Mbappé (8)", "Guillermo Stábile (8)"],
+                answer: 1,
+                exp: "Just Fontaine (Francia) anotó 13 goles en tan solo 6 partidos en el Mundial de Suecia 1958."
+            },
+            {
+                q: "¿En qué país se disputó el mítico partido bautizado como 'El Maracanazo'?",
+                options: ["Uruguay 1930", "Brasil 1950", "Chile 1962", "Argentina 1978"],
+                answer: 1,
+                exp: "Uruguay derrotó 2-1 a Brasil en el Estadio Maracaná de Río de Janeiro en 1950."
+            },
+            {
+                q: "¿Cuál es el único país que ha participado en absolutamente TODAS las ediciones de la Copa del Mundo?",
+                options: ["Alemania", "Italia", "Argentina", "Brasil"],
+                answer: 3,
+                exp: "Brasil es la única selección que ha clasificado y competido en las 22 Copas del Mundo disputadas."
+            }
+        ];
+
+        let quizCurrentIdx = 0;
+        let quizScore = 0;
+
+        function initQuiz() {
+            quizCurrentIdx = 0;
+            quizScore = 0;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const qData = TRIVIA_QUESTIONS[quizCurrentIdx];
+            document.getElementById('quiz-step').innerText = `Pregunta ${quizCurrentIdx + 1} de ${TRIVIA_QUESTIONS.length}`;
+            document.getElementById('quiz-score').innerText = `Puntos: ${quizScore}`;
+            document.getElementById('quiz-question').innerText = qData.q;
+
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-3.5 bg-white hover:bg-gold-100/80 border border-gold-200 rounded-xl font-medium text-xs text-gray-800 text-left transition-all hover:scale-[1.01]";
+                btn.innerText = opt;
+                btn.onclick = () => selectQuizAnswer(idx);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIdx) {
+            const qData = TRIVIA_QUESTIONS[quizCurrentIdx];
+            const feedback = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('quiz-next-btn');
+
+            // Disable all option buttons
+            const buttons = document.querySelectorAll('#quiz-options button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIdx === qData.answer) {
+                quizScore += 20;
+                buttons[selectedIdx].className = "p-3.5 bg-emerald-500 text-white font-bold rounded-xl text-xs text-left shadow-sm";
+                feedback.className = "p-4 rounded-xl text-center text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200";
+                feedback.innerText = `¡Correcto! 🎉 ${qData.exp}`;
+            } else {
+                buttons[selectedIdx].className = "p-3.5 bg-red-500 text-white font-bold rounded-xl text-xs text-left shadow-sm";
+                buttons[qData.answer].className = "p-3.5 bg-emerald-500 text-white font-bold rounded-xl text-xs text-left shadow-sm";
+                feedback.className = "p-4 rounded-xl text-center text-xs font-semibold bg-red-50 text-red-800 border border-red-200";
+                feedback.innerText = `Incorrecto. 😅 ${qData.exp}`;
+            }
+
+            document.getElementById('quiz-score').innerText = `Puntos: ${quizScore}`;
+            feedback.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            quizCurrentIdx++;
+            if (quizCurrentIdx < TRIVIA_QUESTIONS.length) {
+                renderQuizQuestion();
+            } else {
+                // Show Quiz Summary
+                const container = document.getElementById('quiz-card');
+                container.innerHTML = `
+                    <div class="text-center space-y-3 py-4">
+                        <div class="w-16 h-16 rounded-full bg-gold-500 text-white text-2xl mx-auto flex items-center justify-center shadow-gold-sm">
+                            🏆
+                        </div>
+                        <h4 class="font-serif font-bold text-2xl text-gray-900">¡Trivia Completada!</h4>
+                        <p class="text-sm text-gray-700">Obtuviste una puntuación final de:</p>
+                        <p class="text-3xl font-extrabold text-gold-600">${quizScore} / 100 Puntos</p>
+                        <button onclick="initQuiz()" class="mt-4 px-6 py-2.5 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-xl text-xs transition-all shadow-gold-sm">
+                            Volver a Intentar
+                        </button>
+                    </div>
+                `;
+                document.getElementById('quiz-feedback').classList.add('hidden');
+                document.getElementById('quiz-next-btn').classList.add('hidden');
+            }
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON PAGE LOAD
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMundialesGrid(WORLD_CUPS_DATA);
+            initQuiz();
+        });
+    </script>
+</body>
+</html>
